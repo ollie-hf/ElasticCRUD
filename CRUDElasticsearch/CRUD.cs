@@ -92,33 +92,30 @@ namespace CRUDElasticsearch
 
 
         */
-        public static bool insertDocument(int searchID, object obj)
+        public static bool insertDocument(object obj, int searchID)
         {
             var client = ConnectionToES.EsClient();
 
             bool status;
-
-            var createIndexResponse = client.CreateIndex("treadsa", c => c
+            /*
+            var createIndexResponse = client.CreateIndex("testing", c => c
      .Mappings(ms => ms
          .Map<DocumentModel>(m => m
              .Properties(ps => ps
-                    //.(s => s.Name(sf => sf.Filename).CopyTo(sc => sc.Field(ct => ct.CopyToAll)))
-                     .Number(s => s.Name(sf => sf.FolderID).CopyTo(sc => sc.Field(ct => ct.CopyToAll)))
 
-             )
-             .AutoMap()
+             ).AutoMap()
          )
 
      )
-   );
+   );*/
 
-
+            
             var response = client.Index(obj, i => i
-                .Index("tdindex")
+                .Index("antelope")
                 .Type("documentModel")
                 .Id(searchID)
                 .Refresh());
-
+                
             if (response.IsValid)
             {
                 status = true;
@@ -239,11 +236,11 @@ namespace CRUDElasticsearch
         public string Filename { get; set; }
         public int FolderID { get; set; }
         public string uploadUser { get; set; }
-        public DateTime UploadDate { get; set; }
+        public string UploadDate { get; set; }
         public string DocumentType { get; set; }
         public bool AccessControl { get; set; }
         [Nested]
-        public List<Comments> Comments { get; set; }
+        public List<CommentList> Comments { get; set; }
         [Nested]
         public List<Metadata> Metadata { get; set; }
 
@@ -252,9 +249,9 @@ namespace CRUDElasticsearch
 
     }
 
-    public class Comments
+    public class CommentList
     {
-        public DateTime CreateDate { get; set; }
+        public string CreateDate { get; set; }
         public string Comment { get; set; }
         public string User { get; set; }
     }
@@ -269,7 +266,7 @@ namespace CRUDElasticsearch
 
         // admin will define mapped values as below from config/admin api
         public string upload_user { get; set; }
-        public DateTime upload_date_time { get; set; } //maybe not requires for soundex
+        public string upload_date_time { get; set; } //maybe not requires for soundex
         public string documentName { get; set; }
         public List<MetadataKeys> MetadataKeys { get; set; } //for comments -- look into searching comments meta datas >.. Ocr data after
 

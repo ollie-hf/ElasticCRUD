@@ -80,20 +80,23 @@ namespace CRUDElasticsearch
             for (int i = 0; i < files; i++)
             {
                 rand = new Random();
-                string docType = WordGeneratorUtil.GetDocType();
+                string docType = WordGeneratorUtil.GetDocType().TrimEnd('\r', '\t', ' ').TrimStart('\r', '\t', ' ').Trim('\r', '\t', ' ');
+                string date = DateTime.Now.ToString("MM/dd/yyyy");
+                DateTime theDate = new DateTime();
+                DateTime.TryParse(date, out theDate);
 
                 document = new DocumentModel
                 {
                     Metadata = new List<Metadata>() { },
 
-                    Comments = new List<Comments>() { },
+                    Comments = new List<CommentList>() { },
                 };
 
                 // 5 System Metadatas
                 //document.Metadata.Add(new Metadata { Key = "sys_filename", Value = WordGeneratorUtil.GetFileName()});
-                document.Filename = WordGeneratorUtil.GetFileName();
+                document.Filename = WordGeneratorUtil.GetFileName().TrimEnd('\r', '\t', ' ').TrimStart('\r', '\t', ' ').Trim('\r', '\t', ' ');
 
-                if (rand.Next(1) == 1)
+                if (rand.Next(2) == 1)
                 {
                     //document.MetadataKeys.Add(new MetadataKey { Key = "sys_AccesControl", Value = "true" });
                     document.AccessControl = true;
@@ -107,17 +110,17 @@ namespace CRUDElasticsearch
                 //document.MetadataKeys.Add(new MetadataKey { Key = "sys_FolderId", Value = "" + rand.Next(7) });
                 document.FolderID = rand.Next(7);
                 //document.MetadataKeys.Add(new MetadataKey { Key = "sys_upload_user", Value = WordGeneratorUtil.GetName().Replace(" ", "") });
-                document.uploadUser = WordGeneratorUtil.GetName().Replace(" ", "");
+                document.uploadUser = WordGeneratorUtil.GetName().Split(' ')[0].TrimEnd('\r','\t',' ').TrimStart('\r', '\t', ' ').Trim('\r', '\t', ' ');
                 //document.MetadataKeys.Add(new MetadataKey { Key = "sys_upload_date", Value = System.DateTime.Now.ToString() });
-                document.UploadDate = System.DateTime.Now;
+
+                document.UploadDate = System.DateTime.Now.Date.ToString("dd/MM/yyyy");
                 //document.MetadataKeys.Add(new MetadataKey { Key = "sys_doc_type", Value = docType });
                 document.DocumentType = docType;
-
 
                 // 1-4 Comments
                 for (int f = 0; f < rand.Next(4); f++)
                 {
-                    document.Comments.Add(new Comments { User = WordGeneratorUtil.GetName().Replace(" ", ""), CreateDate = getRandomDate(), Comment = WordGeneratorUtil.GetSentence() });
+                    document.Comments.Add(new CommentList { User = WordGeneratorUtil.GetName().Replace(" ", ""), CreateDate = System.DateTime.Now.Date.ToString("dd/MM/yyyy"), Comment = WordGeneratorUtil.GetSentence() });
                 }
 
                 // 4 User Metadatas
@@ -128,7 +131,7 @@ namespace CRUDElasticsearch
                         if(ppname.Length - 3 > 0)
                         document.Metadata.Add(new Metadata { Key = "def_passport_no", Value = ppname.Substring(ppname.Length-3) + rand.Next(6) });
 
-                        document.Metadata.Add(new Metadata { Key = "def_date_of_birth", Value = "" + getRandomDate() });
+                        document.Metadata.Add(new Metadata { Key = "def_date_of_birth", Value = System.DateTime.Now.Date.ToString("dd/MM/yyyy") });
                         break;
                     case "Invoice":
                         document.Metadata.Add(new Metadata { Key = "def_account_no", Value = "" + rand.Next(9999999)});
@@ -158,9 +161,11 @@ namespace CRUDElasticsearch
                 // 1-5 OCR Text - To be added later...
 
 
-                CRUD.insertDocument(i, document);
+                CRUD.insertDocument(document, i);
 
             }
+            
+
             //{
             //    var document2 = new DocumentModel
             //    {
@@ -216,7 +221,7 @@ namespace CRUDElasticsearch
             var year = 1980 + myRandom.Next(19);
             var month = 1 + myRandom.Next(12);
             var day = 1 + myRandom.Next(28);
-            return new DateTime(year, month, day);
+            return new DateTime(month, month, day);
         }
 
     }
